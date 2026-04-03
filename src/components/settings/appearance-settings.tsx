@@ -92,10 +92,10 @@ export function AppearanceSettings() {
         : t("resolvedTheme.unknown")
 
   const isCustomUiFont = !UI_FONT_PRESETS.some(
-    (p) => p.value === settings.uiFont && p.value !== "custom",
+    (p) => p.value === settings.uiFont && p.value !== "custom"
   )
   const isCustomCodeFont = !CODE_FONT_PRESETS.some(
-    (p) => p.value === settings.codeFont && p.value !== "custom",
+    (p) => p.value === settings.codeFont && p.value !== "custom"
   )
 
   return (
@@ -167,7 +167,7 @@ export function AppearanceSettings() {
                     "flex h-7 w-7 items-center justify-center rounded-full border-2 transition-transform hover:scale-110",
                     settings.accentColor === color
                       ? "border-foreground"
-                      : "border-transparent",
+                      : "border-transparent"
                   )}
                   onClick={() => update("accentColor", color)}
                 >
@@ -423,9 +423,7 @@ export function AppearanceSettings() {
               <SelectContent align="start">
                 <SelectItem value="compact">{t("densityCompact")}</SelectItem>
                 <SelectItem value="default">{t("densityDefault")}</SelectItem>
-                <SelectItem value="spacious">
-                  {t("densitySpacious")}
-                </SelectItem>
+                <SelectItem value="spacious">{t("densitySpacious")}</SelectItem>
               </SelectContent>
             </Select>
           </div>

@@ -187,7 +187,12 @@ export const highlightCode = (
   // oxlint-disable-next-line eslint-plugin-promise(prefer-await-to-callbacks)
   callback?: (result: TokenizedCode) => void
 ): TokenizedCode | null => {
-  const tokensCacheKey = getTokensCacheKey(code, language, lightTheme, darkTheme)
+  const tokensCacheKey = getTokensCacheKey(
+    code,
+    language,
+    lightTheme,
+    darkTheme
+  )
 
   // Return cached result if available
   const cached = tokensCache.get(tokensCacheKey)

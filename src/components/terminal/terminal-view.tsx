@@ -259,7 +259,9 @@ export function TerminalView({
 
   // React to appearance settings changes on an existing terminal
   useEffect(() => {
-    const term = termRef.current as any
+    const term = termRef.current as {
+      options: { fontSize: number; fontFamily: string; theme: ITheme }
+    } | null
     if (!term?.options) return
     term.options.fontSize = settings.codeFontSize
     term.options.fontFamily = settings.codeFont

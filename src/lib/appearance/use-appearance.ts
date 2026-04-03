@@ -82,13 +82,7 @@ function applyToDOM(settings: AppearanceSettings) {
 }
 
 export function AppearanceProvider({ children }: { children: ReactNode }) {
-  const [settings, setSettings] =
-    useState<AppearanceSettings>(DEFAULT_APPEARANCE)
-
-  // Load from localStorage on mount
-  useEffect(() => {
-    setSettings(loadSettings())
-  }, [])
+  const [settings, setSettings] = useState<AppearanceSettings>(loadSettings)
 
   // Apply CSS variables whenever settings or theme class changes
   useEffect(() => {
