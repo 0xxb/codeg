@@ -7,6 +7,7 @@ import { getMessagesForLocale } from "@/i18n/messages"
 import { resolveRequestLocale } from "@/i18n/resolve-request-locale"
 import { ThemeProvider } from "@/components/theme-provider"
 import { toIntlLocale } from "@/lib/i18n"
+import { AppearanceProvider } from "@/lib/appearance/use-appearance"
 
 const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
@@ -50,7 +51,7 @@ export default async function RootLayout({
               enableSystem
               disableTransitionOnChange
             >
-              {children}
+              <AppearanceProvider>{children}</AppearanceProvider>
             </ThemeProvider>
           </AppI18nProvider>
         </NextIntlClientProvider>
