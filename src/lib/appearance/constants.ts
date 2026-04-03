@@ -66,27 +66,23 @@ export const ACCENT_PRESETS: Record<
   },
 }
 
+// ── UI font presets ────────────────────────────────────────────
+// Google Fonts use var() referencing the CSS variable set by next/font.
+// System fonts use raw font-family names.
 export const UI_FONT_PRESETS = [
-  { value: "system-ui", label: "System Default" },
-  {
-    value: "'JetBrains Mono', monospace",
-    label: "JetBrains Mono",
-  },
+  { value: "system-ui, sans-serif", label: "System Default" },
+  { value: "var(--font-inter)", label: "Inter" },
+  { value: "var(--font-jetbrains-mono)", label: "JetBrains Mono" },
 ] as const
 
+// ── Code font presets ──────────────────────────────────────────
 export const CODE_FONT_PRESETS = [
-  {
-    value: "'JetBrains Mono', monospace",
-    label: "JetBrains Mono",
-  },
+  { value: "var(--font-jetbrains-mono)", label: "JetBrains Mono" },
   { value: "'Fira Code', monospace", label: "Fira Code" },
-  { value: "'Cascadia Code', monospace", label: "Cascadia Code" },
-  {
-    value: "'Source Code Pro', monospace",
-    label: "Source Code Pro",
-  },
-  { value: "Menlo, monospace", label: "Menlo" },
-  { value: "Monaco, monospace", label: "Monaco" },
+  { value: "'Source Code Pro', monospace", label: "Source Code Pro" },
+  { value: "Consolas, monospace", label: "Consolas (Windows)" },
+  { value: "Menlo, monospace", label: "Menlo (macOS)" },
+  { value: "'Courier New', monospace", label: "Courier New" },
   { value: "monospace", label: "monospace" },
 ] as const
 
@@ -336,8 +332,8 @@ export const TERMINAL_SCHEME_OPTIONS = [
 
 export const DEFAULT_APPEARANCE: AppearanceSettings = {
   accentColor: "blue",
-  uiFont: "'JetBrains Mono', monospace",
-  codeFont: "'JetBrains Mono', monospace",
+  uiFont: "var(--font-jetbrains-mono)",
+  codeFont: "var(--font-jetbrains-mono)",
   uiFontSize: 16,
   codeFontSize: 14,
   codeThemeLight: "github-light",

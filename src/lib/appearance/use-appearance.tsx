@@ -7,6 +7,7 @@ import {
   useEffect,
   useState,
 } from "react"
+import type { ReactNode } from "react"
 import type { AppearanceSettings } from "./types"
 import {
   ACCENT_PRESETS,
@@ -14,8 +15,6 @@ import {
   DEFAULT_APPEARANCE,
   DENSITY_VALUES,
 } from "./constants"
-import type { ReactNode } from "react"
-import { createElement } from "react"
 
 interface AppearanceContextType {
   settings: AppearanceSettings
@@ -29,6 +28,11 @@ const AppearanceContext = createContext<AppearanceContextType>({
   settings: DEFAULT_APPEARANCE,
   update: () => {},
 })
+
+const reducedMotionQuery =
+  typeof window !== "undefined"
+    ? window.matchMedia("(prefers-reduced-motion: reduce)")
+    : null
 
 function loadSettings(): AppearanceSettings {
   if (typeof window === "undefined") return DEFAULT_APPEARANCE
@@ -45,35 +49,32 @@ function saveSettings(settings: AppearanceSettings) {
   localStorage.setItem(APPEARANCE_STORAGE_KEY, JSON.stringify(settings))
 }
 
-function applyToDOM(settings: AppearanceSettings) {
+function applyAccentToDOM(settings: AppearanceSettings) {
   const root = document.documentElement.style
   const isDark = document.documentElement.classList.contains("dark")
-
-  // Accent color
   const accent = ACCENT_PRESETS[settings.accentColor]
-  const accentValue = isDark ? accent.dark : accent.light
-  root.setProperty("--primary", accentValue)
-  root.setProperty("--ring", accentValue)
-  root.setProperty("--sidebar-primary", accentValue)
+  const v = isDark ? accent.dark : accent.light
+  root.setProperty("--primary", v)
+  root.setProperty("--ring", v)
+  root.setProperty("--sidebar-primary", v)
+}
 
-  // Fonts
+function applyToDOM(settings: AppearanceSettings) {
+  const root = document.documentElement.style
+
+  applyAccentToDOM(settings)
+
   root.setProperty("--font-sans", settings.uiFont)
   root.setProperty("--font-code", settings.codeFont)
-
-  // Font sizes
   root.setProperty("--font-size-base", `${settings.uiFontSize}px`)
   root.setProperty("--font-size-code", `${settings.codeFontSize}px`)
 
-  // Density
   const density = DENSITY_VALUES[settings.density]
   root.setProperty("--density-padding", density.padding)
   root.setProperty("--density-gap", density.gap)
   root.setProperty("--density-line-height", density.lineHeight)
 
-  // Reduce motion
-  const prefersReduced = window.matchMedia(
-    "(prefers-reduced-motion: reduce)"
-  ).matches
+  const prefersReduced = reducedMotionQuery?.matches ?? false
   const shouldReduce =
     settings.reduceMotion === "on" ||
     (settings.reduceMotion === "system" && prefersReduced)
@@ -84,12 +85,11 @@ function applyToDOM(settings: AppearanceSettings) {
 export function AppearanceProvider({ children }: { children: ReactNode }) {
   const [settings, setSettings] = useState<AppearanceSettings>(loadSettings)
 
-  // Apply CSS variables whenever settings or theme class changes
   useEffect(() => {
     applyToDOM(settings)
 
-    // Re-apply when dark/light class changes (accent color depends on it)
-    const observer = new MutationObserver(() => applyToDOM(settings))
+    // Only accent color depends on dark/light class
+    const observer = new MutationObserver(() => applyAccentToDOM(settings))
     observer.observe(document.documentElement, {
       attributes: true,
       attributeFilter: ["class"],
@@ -97,7 +97,6 @@ export function AppearanceProvider({ children }: { children: ReactNode }) {
     return () => observer.disconnect()
   }, [settings])
 
-  // Cross-tab sync
   useEffect(() => {
     const handler = (e: StorageEvent) => {
       if (e.key === APPEARANCE_STORAGE_KEY && e.newValue) {
@@ -118,6 +117,7 @@ export function AppearanceProvider({ children }: { children: ReactNode }) {
       value: AppearanceSettings[K]
     ) => {
       setSettings((prev) => {
+        if (prev[key] === value) return prev
         const next = { ...prev, [key]: value }
         saveSettings(next)
         return next
@@ -126,10 +126,10 @@ export function AppearanceProvider({ children }: { children: ReactNode }) {
     []
   )
 
-  return createElement(
-    AppearanceContext.Provider,
-    { value: { settings, update } },
-    children
+  return (
+    <AppearanceContext.Provider value={{ settings, update }}>
+      {children}
+    </AppearanceContext.Provider>
   )
 }
 

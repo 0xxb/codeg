@@ -26,6 +26,7 @@ import {
 } from "@/lib/appearance/constants"
 import type {
   AccentColor,
+  AppearanceSettings,
   CodeThemeLight,
   CodeThemeDark,
   TerminalScheme,
@@ -387,7 +388,7 @@ export function AppearanceSettings() {
             <Select
               value={settings.reduceMotion}
               onValueChange={(v) =>
-                update("reduceMotion", v as "system" | "on" | "off")
+                update("reduceMotion", v as AppearanceSettings["reduceMotion"])
               }
             >
               <SelectTrigger className="w-56">

@@ -125,7 +125,7 @@ const highlighterCache = new Map<
   Promise<HighlighterGeneric<BundledLanguage, BundledTheme>>
 >()
 
-// Token cache
+const MAX_TOKENS_CACHE = 200
 const tokensCache = new Map<string, TokenizedCode>()
 
 // Subscribers for async token updates
@@ -229,8 +229,11 @@ export const highlightCode = (
         tokens: result.tokens,
       }
 
-      // Cache the result
       tokensCache.set(tokensCacheKey, tokenized)
+      if (tokensCache.size > MAX_TOKENS_CACHE) {
+        const first = tokensCache.keys().next().value
+        if (first !== undefined) tokensCache.delete(first)
+      }
 
       // Notify all subscribers
       const subs = subscribers.get(tokensCacheKey)
@@ -412,20 +415,26 @@ export const CodeBlockContent = ({
     [code, language, lightTheme, darkTheme, rawTokens]
   )
 
-  // Async highlighted result, tagged with its source code/language
   const [asyncState, setAsyncState] = useState<{
     code: string
     language: string
+    lightTheme: string
+    darkTheme: string
     tokenized: TokenizedCode
   } | null>(null)
 
   useEffect(() => {
     let cancelled = false
 
-    // Subscribe to async highlighting result
     highlightCode(code, language, lightTheme, darkTheme, (result) => {
       if (!cancelled) {
-        setAsyncState({ code, language, tokenized: result })
+        setAsyncState({
+          code,
+          language,
+          lightTheme,
+          darkTheme,
+          tokenized: result,
+        })
       }
     })
 
@@ -434,9 +443,11 @@ export const CodeBlockContent = ({
     }
   }, [code, language, lightTheme, darkTheme])
 
-  // Use async result only if it matches current code/language
   const tokenized =
-    asyncState?.code === code && asyncState?.language === language
+    asyncState?.code === code &&
+    asyncState?.language === language &&
+    asyncState?.lightTheme === lightTheme &&
+    asyncState?.darkTheme === darkTheme
       ? asyncState.tokenized
       : syncTokenized
 
