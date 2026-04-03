@@ -6,9 +6,9 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
-  font-size: 16px;
-  line-height: 24px;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-base);
+  line-height: var(--density-line-height);
   font-weight: 400;
 
   font-synthesis: none;
@@ -49,7 +49,7 @@
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
   --font-code: 'JetBrains Mono', monospace;
-  --font-size-base: 14px;
+  --font-size-base: 16px;
   --font-size-code: 14px;
   --density-padding: 0.5rem;
   --density-gap: 0.5rem;
@@ -174,7 +174,6 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-size: var(--font-size-base);
   }
 }
 

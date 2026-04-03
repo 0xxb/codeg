@@ -14,7 +14,6 @@ import {
 } from "lucide-react"
 import { useTranslations } from "next-intl"
 import { useTheme } from "next-themes"
-import { useState } from "react"
 import { cn } from "@/lib/utils"
 import { useAppearance } from "@/lib/appearance/use-appearance"
 import {
@@ -39,7 +38,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { Input } from "@/components/ui/input"
 
 type ThemeMode = "system" | "light" | "dark"
 
@@ -81,8 +79,6 @@ export function AppearanceSettings() {
   const t = useTranslations("AppearanceSettings")
   const { theme, resolvedTheme, setTheme } = useTheme()
   const { settings, update } = useAppearance()
-  const [customUiFont, setCustomUiFont] = useState("")
-  const [customCodeFont, setCustomCodeFont] = useState("")
 
   const resolvedThemeLabel =
     resolvedTheme === "dark"
@@ -90,13 +86,6 @@ export function AppearanceSettings() {
       : resolvedTheme === "light"
         ? t("resolvedTheme.light")
         : t("resolvedTheme.unknown")
-
-  const isCustomUiFont = !UI_FONT_PRESETS.some(
-    (p) => p.value === settings.uiFont && p.value !== "custom"
-  )
-  const isCustomCodeFont = !CODE_FONT_PRESETS.some(
-    (p) => p.value === settings.codeFont && p.value !== "custom"
-  )
 
   return (
     <div className="h-full overflow-auto">
@@ -201,14 +190,8 @@ export function AppearanceSettings() {
               {t("uiFont")}
             </label>
             <Select
-              value={isCustomUiFont ? "custom" : settings.uiFont}
-              onValueChange={(v) => {
-                if (v === "custom") {
-                  setCustomUiFont(settings.uiFont)
-                } else {
-                  update("uiFont", v)
-                }
-              }}
+              value={settings.uiFont}
+              onValueChange={(v) => update("uiFont", v)}
             >
               <SelectTrigger className="w-56">
                 <SelectValue />
@@ -221,19 +204,6 @@ export function AppearanceSettings() {
                 ))}
               </SelectContent>
             </Select>
-            {isCustomUiFont && (
-              <Input
-                className="w-56"
-                placeholder={t("customFontPlaceholder")}
-                value={customUiFont || settings.uiFont}
-                onChange={(e) => {
-                  setCustomUiFont(e.target.value)
-                  if (e.target.value.trim()) {
-                    update("uiFont", e.target.value.trim())
-                  }
-                }}
-              />
-            )}
           </div>
 
           {/* Code Font */}
@@ -242,14 +212,8 @@ export function AppearanceSettings() {
               {t("codeFont")}
             </label>
             <Select
-              value={isCustomCodeFont ? "custom" : settings.codeFont}
-              onValueChange={(v) => {
-                if (v === "custom") {
-                  setCustomCodeFont(settings.codeFont)
-                } else {
-                  update("codeFont", v)
-                }
-              }}
+              value={settings.codeFont}
+              onValueChange={(v) => update("codeFont", v)}
             >
               <SelectTrigger className="w-56">
                 <SelectValue />
@@ -262,19 +226,6 @@ export function AppearanceSettings() {
                 ))}
               </SelectContent>
             </Select>
-            {isCustomCodeFont && (
-              <Input
-                className="w-56"
-                placeholder={t("customFontPlaceholder")}
-                value={customCodeFont || settings.codeFont}
-                onChange={(e) => {
-                  setCustomCodeFont(e.target.value)
-                  if (e.target.value.trim()) {
-                    update("codeFont", e.target.value.trim())
-                  }
-                }}
-              />
-            )}
           </div>
 
           {/* Font Sizes */}

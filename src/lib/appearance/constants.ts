@@ -72,7 +72,6 @@ export const UI_FONT_PRESETS = [
     value: "'JetBrains Mono', monospace",
     label: "JetBrains Mono",
   },
-  { value: "custom", label: "Custom..." },
 ] as const
 
 export const CODE_FONT_PRESETS = [
@@ -89,7 +88,6 @@ export const CODE_FONT_PRESETS = [
   { value: "Menlo, monospace", label: "Menlo" },
   { value: "Monaco, monospace", label: "Monaco" },
   { value: "monospace", label: "monospace" },
-  { value: "custom", label: "Custom..." },
 ] as const
 
 export const DENSITY_VALUES: Record<
@@ -340,7 +338,7 @@ export const DEFAULT_APPEARANCE: AppearanceSettings = {
   accentColor: "blue",
   uiFont: "'JetBrains Mono', monospace",
   codeFont: "'JetBrains Mono', monospace",
-  uiFontSize: 14,
+  uiFontSize: 16,
   codeFontSize: 14,
   codeThemeLight: "github-light",
   codeThemeDark: "github-dark",
