@@ -16,6 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { useAppearance } from "@/lib/appearance/use-appearance"
 import { cn } from "@/lib/utils"
 import { CheckIcon, CopyIcon } from "lucide-react"
 import {
@@ -130,26 +131,34 @@ const tokensCache = new Map<string, TokenizedCode>()
 // Subscribers for async token updates
 const subscribers = new Map<string, Set<(result: TokenizedCode) => void>>()
 
-const getTokensCacheKey = (code: string, language: BundledLanguage) => {
+const getTokensCacheKey = (
+  code: string,
+  language: BundledLanguage,
+  lightTheme: string,
+  darkTheme: string
+) => {
   const start = code.slice(0, 100)
   const end = code.length > 100 ? code.slice(-100) : ""
-  return `${language}:${code.length}:${start}:${end}`
+  return `${language}:${lightTheme}:${darkTheme}:${code.length}:${start}:${end}`
 }
 
 const getHighlighter = (
-  language: BundledLanguage
+  language: BundledLanguage,
+  lightTheme: string,
+  darkTheme: string
 ): Promise<HighlighterGeneric<BundledLanguage, BundledTheme>> => {
-  const cached = highlighterCache.get(language)
+  const cacheKey = `${language}:${lightTheme}:${darkTheme}`
+  const cached = highlighterCache.get(cacheKey)
   if (cached) {
     return cached
   }
 
   const highlighterPromise = createHighlighter({
     langs: [language],
-    themes: ["github-light", "github-dark"],
+    themes: [lightTheme as BundledTheme, darkTheme as BundledTheme],
   })
 
-  highlighterCache.set(language, highlighterPromise)
+  highlighterCache.set(cacheKey, highlighterPromise)
   return highlighterPromise
 }
 
@@ -173,10 +182,12 @@ const createRawTokens = (code: string): TokenizedCode => ({
 export const highlightCode = (
   code: string,
   language: BundledLanguage,
+  lightTheme: string,
+  darkTheme: string,
   // oxlint-disable-next-line eslint-plugin-promise(prefer-await-to-callbacks)
   callback?: (result: TokenizedCode) => void
 ): TokenizedCode | null => {
-  const tokensCacheKey = getTokensCacheKey(code, language)
+  const tokensCacheKey = getTokensCacheKey(code, language, lightTheme, darkTheme)
 
   // Return cached result if available
   const cached = tokensCache.get(tokensCacheKey)
@@ -193,7 +204,7 @@ export const highlightCode = (
   }
 
   // Start highlighting in background - fire-and-forget async pattern
-  getHighlighter(language)
+  getHighlighter(language, lightTheme, darkTheme)
     // oxlint-disable-next-line eslint-plugin-promise(prefer-await-to-then)
     .then((highlighter) => {
       const availableLangs = highlighter.getLoadedLanguages()
@@ -202,8 +213,8 @@ export const highlightCode = (
       const result = highlighter.codeToTokens(code, {
         lang: langToUse,
         themes: {
-          dark: "github-dark",
-          light: "github-light",
+          dark: darkTheme as BundledTheme,
+          light: lightTheme as BundledTheme,
         },
       })
 
@@ -383,13 +394,17 @@ export const CodeBlockContent = ({
   language: BundledLanguage
   showLineNumbers?: boolean
 }) => {
+  const { settings } = useAppearance()
+  const lightTheme = settings.codeThemeLight
+  const darkTheme = settings.codeThemeDark
+
   // Memoized raw tokens for immediate display
   const rawTokens = useMemo(() => createRawTokens(code), [code])
 
   // Synchronous cached-or-raw value, recomputed when code/language changes
   const syncTokenized = useMemo(
-    () => highlightCode(code, language) ?? rawTokens,
-    [code, language, rawTokens]
+    () => highlightCode(code, language, lightTheme, darkTheme) ?? rawTokens,
+    [code, language, lightTheme, darkTheme, rawTokens]
   )
 
   // Async highlighted result, tagged with its source code/language
@@ -403,7 +418,7 @@ export const CodeBlockContent = ({
     let cancelled = false
 
     // Subscribe to async highlighting result
-    highlightCode(code, language, (result) => {
+    highlightCode(code, language, lightTheme, darkTheme, (result) => {
       if (!cancelled) {
         setAsyncState({ code, language, tokenized: result })
       }
@@ -412,7 +427,7 @@ export const CodeBlockContent = ({
     return () => {
       cancelled = true
     }
-  }, [code, language])
+  }, [code, language, lightTheme, darkTheme])
 
   // Use async result only if it matches current code/language
   const tokenized =
